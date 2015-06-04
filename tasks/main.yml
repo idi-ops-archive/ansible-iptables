@@ -1,0 +1,30 @@
+---
+
+- name: Generate temporary rules script
+  template:
+    src: iptables-rules.sh.j2
+    dest: /tmp/iptables-rules.sh
+    backup: no
+    mode: '0700'
+    owner: root
+    group: root
+
+- name: Apply temporary rules
+  shell: "/tmp/iptables-rules.sh"
+
+- name: Save temporary rules to permanent location
+  command: "/usr/libexec/iptables/iptables.init save"
+
+- name: Flush temporary rules
+  command: "/usr/sbin/iptables -F"
+
+- name: Remove temporary rules script
+  file:
+    path: /tmp/iptables-rules.sh
+    state: absent
+
+- name: Enable service and load rules from permanent location
+  service:
+    name: iptables
+    enabled: yes
+    state: restarted

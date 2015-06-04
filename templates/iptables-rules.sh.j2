@@ -1,0 +1,33 @@
+#!/bin/bash
+
+IPTABLES=/usr/sbin/iptables
+
+# Flush all rules and chains
+$IPTABLES -F
+$IPTABLES -X
+
+# Allow incoming ports
+{% for item in iptables_rules %}
+$IPTABLES -A INPUT -p {{ item.0 }} -m {{ item.0 }} --dport {{ item.1 }} -s {{ item.2 | replace('any', '0.0.0.0/0') }} -j ACCEPT
+{% endfor %}
+
+# Custom rules
+{% for item in iptables_custom_rules %}
+$IPTABLES {{ item }} 
+{% endfor %}
+
+# Allow all ICMP
+{% if iptables_allow_icmp %}
+$IPTABLES -A INPUT -p icmp -j ACCEPT
+{% endif %}
+
+# Allow established connections
+$IPTABLES -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Log dropped packets
+{% if iptables_log %}
+$IPTABLES -A INPUT -m limit --limit {{ iptables_log_rate }}/minute -j LOG
+{% endif %}
+
+# Drop everything else
+$IPTABLES -A INPUT -j DROP
