@@ -3,14 +3,14 @@
 - name: Generate temporary rules script
   template:
     src: iptables-rules.sh.j2
-    dest: /tmp/iptables-rules.sh
+    dest: "{{ iptables_rules_path }}"
     backup: no
     mode: '0755'
     owner: root
     group: root
 
 - name: Apply temporary rules
-  shell: "/tmp/iptables-rules.sh"
+  command: "{{ iptables_rules_path }}"
 
 - name: Save temporary rules to permanent location
   command: "/usr/libexec/iptables/iptables.init save"
