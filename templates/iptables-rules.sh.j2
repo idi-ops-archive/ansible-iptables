@@ -6,6 +6,14 @@ IPTABLES=/usr/sbin/iptables
 $IPTABLES -F
 $IPTABLES -X
 
+# Enable NAT
+{% if iptables_nat %}
+$IPTABLES -t nat -A POSTROUTING -o {{ iptables_nat_device }} -j MASQUERADE
+{% endif %}
+
+# Allow all from localhost
+iptables -A INPUT -i lo -j ACCEPT
+
 # Allow incoming ports
 {% for item in iptables_rules %}
 $IPTABLES -A INPUT -p {{ item.0 }} -m {{ item.0 }} --dport {{ item.1 }} -s {{ item.2 | replace('any', '0.0.0.0/0') }} -j ACCEPT

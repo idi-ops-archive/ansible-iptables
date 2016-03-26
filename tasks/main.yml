@@ -1,5 +1,13 @@
 ---
 
+- name: Enable IP forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: yes
+  when: iptables_nat
+
 - name: Generate temporary rules script
   template:
     src: iptables-rules.sh.j2

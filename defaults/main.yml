@@ -5,6 +5,9 @@ iptables_custom_rules: []
 
 iptables_allow_icmp: yes
 
+iptables_nat: no
+iptables_nat_device: eth0
+
 iptables_log: no
 iptables_log_rate: 15
 
